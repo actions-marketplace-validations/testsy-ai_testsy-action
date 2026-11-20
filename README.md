@@ -1,11 +1,26 @@
 # Testsy
 
-Check releases, investigate failed runs and preserve regression coverage.
+Testsy runs QA tests written in plain English on websites and on iOS and Android apps, and returns a verdict for every check with its evidence: a replay, video, the values it saw, console and network.
 
-Documentation: https://testsy.dev/docs/mcp/
+Documentation: https://testsy.dev/docs/mcp/ · Sign up: https://app.testsy.dev
 
-This action bundles its versioned Node CLI. Use Node 22 or later. Configure `api-key` as a repository secret and either `project` or `tests`. Use it as `uses: testsy-ai/testsy-action@v1` (pin a commit SHA in production), or copy this folder to .github/actions/testsy and use `./.github/actions/testsy` after checkout. `junit` defaults to testsy-junit.xml. For a conclusive release gate set `fail-on: failed,error,blocked,inconclusive,cancelled`.
+## Use it in a workflow
 
-CLI: `node bin/testsy.mjs version`, then `node bin/testsy.mjs run --project p_yourproject --junit testsy-junit.xml` with TESTSY_AI_API_KEY securely set.
+```yaml
+- uses: testsy-ai/testsy-action@v1
+  with:
+    api-key: ${{ secrets.TESTSY_AI_API_KEY }}
+    project: p_yourproject
+```
 
-This is an integration package prepared for local testing. A directory listing or live-client validation is not implied. Keep API keys out of prompts and version control. Runs use the workspace allowance and perform the test's actions. MIT applies to these integration files only.
+The step starts the project's saved tests, waits for them and fails the job when a test fails. Each test prints its verdict with a link to the run and a watch link that opens without signing in. A JUnit report is written to `testsy-junit.xml`.
+
+- `api-key` (required): a workspace API key from https://app.testsy.dev, stored as a repository secret.
+- `project` or `tests`: a project id, or a comma-separated list of saved test ids.
+- `target-url`: start website tests at a preview or staging deploy of the same site.
+- `build`: an APK or zipped iOS Simulator app (a path, an https link or a build id) for app tests.
+- `fail-on`: which results fail the job; for a strict release gate use `failed,error,blocked,inconclusive,cancelled`.
+
+All inputs are in action.yml. Pin a commit SHA in production. The action bundles its own Node CLI (Node 22 or later, present on GitHub-hosted runners); the same CLI runs anywhere: `node bin/testsy.mjs run --project p_yourproject --junit testsy-junit.xml` with TESTSY_AI_API_KEY set.
+
+Keep API keys in your secret store, out of prompts and version control. A run uses the workspace allowance and performs real actions on the site or app it is pointed at, so use it on apps and accounts you are allowed to test. These integration files are MIT licensed.
